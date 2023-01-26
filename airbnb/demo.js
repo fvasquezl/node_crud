@@ -8,8 +8,8 @@ async function main() {
 
   try {
     await client.connect();
-
-    await deleteListingsScrapedBeforeDate(client, new Date("2019-02-15"));
+    //----------
+    //await deleteListingsScrapedBeforeDate(client, new Date("2019-02-15"));
     //----------
     //await deleteListingByName(client, "Ribeira Charming Duplex");
     //----------
@@ -30,6 +30,36 @@ async function main() {
     //   minimumNumberOfBathrooms: 2,
     //   maximumNumberOfResults: 5,
     // });
+    //----------
+    // await findOneListingByName(client, "Lovely house");
+    //----------
+    // await createListing(client, {
+    //   name: "Lovely loft",
+    //   summary: "A charming loft in Paris",
+    //   accommodates: 8,
+    //   bedrooms: 1,
+    //   beds: 5,
+    //   bathrooms: 1,
+    // });
+    //----------
+    // await createMultipleListings(client, [
+    //   {
+    //     name: "Lovely house",
+    //     summary: "A charming loft in Tijuana",
+    //     accommodates: 5,
+    //     bedrooms: 1,
+    //     beds: 2,
+    //     bathrooms: 1,
+    //   },
+    //   {
+    //     name: "Lovely depa",
+    //     summary: "A charming loft in Orizaba",
+    //     accommodates: 4,
+    //     bedrooms: 1,
+    //     beds: 1,
+    //     bathrooms: 1,
+    //   },
+    // ]);
   } catch (error) {
     console.error(e);
   } finally {
@@ -40,7 +70,6 @@ async function main() {
 main().catch(console.error);
 
 //DeleteMany
-
 async function deleteListingsScrapedBeforeDate(client, date) {
   const result = await client
     .db("sample_airbnb")
@@ -155,4 +184,55 @@ async function findListingsWithMinimunBedroomsBathroomsAndMostRecentReviews(
       `No listings found at least: ${minimumNumberOfBedrooms} bedrooms and ${minimumNumberOfBathrooms} bathrooms`
     );
   }
+}
+
+//find Listing by name
+async function findOneListingByName(client, nameOfListing) {
+  const result = await client
+    .db("sample_airbnb")
+    .collection("listingsAndReviews")
+    .findOne({ name: nameOfListing });
+
+  if (result) {
+    console.log(
+      ` Found a listing in the collection whit the name '${nameOfListing}'`
+    );
+    console.log(result);
+  } else {
+    console.log(`No listings found in the name '${nameOfListing}'`);
+  }
+}
+
+//Create multiple listings
+async function createMultipleListings(client, newListings) {
+  const result = await client
+    .db("sample_airbnb")
+    .collection("listingsAndReviews")
+    .insertMany(newListings);
+
+  console.log(
+    `${result.insertedCount}, New listing created with the following id(s)`
+  );
+  console.log(result.insertedIds);
+}
+
+//Create Listing
+async function createListing(client, newListing) {
+  const result = await client
+    .db("sample_airbnb")
+    .collection("listingsAndReviews")
+    .insertOne(newListing);
+
+  console.log(
+    `New listing created with the following id: ${result.insertedId}`
+  );
+}
+
+//List Database
+async function listDatabases(client) {
+  const databasesList = await client.db().admin().listDatabases();
+  console.log("Databases:");
+  databasesList.databases.forEach((db) => {
+    console.log(`- ${db.name}`);
+  });
 }
